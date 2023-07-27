@@ -9,6 +9,7 @@ import (
 
 type Album struct {
 	Annotations `structs:"-"`
+	AlbumResume `structs:"-"`
 
 	ID                    string    `structs:"id" json:"id"            orm:"column(id)"`
 	Name                  string    `structs:"name" json:"name"`
@@ -100,4 +101,5 @@ type AlbumRepository interface {
 	GetAllWithoutGenres(...QueryOptions) (Albums, error)
 	Search(q string, offset int, size int) (Albums, error)
 	AnnotatedRepository
+	AlbumResumeRepository
 }

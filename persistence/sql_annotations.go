@@ -22,6 +22,19 @@ func (r sqlRepository) newSelectWithAnnotation(idField string, options ...model.
 		Columns("starred", "starred_at", "play_count", "play_date", "rating")
 }
 
+func (r sqlRepository) newSelectWithAnnotationAndAlbumResume(idField string, options ...model.QueryOptions) SelectBuilder {
+	return r.newSelect(options...).
+		LeftJoin("annotation on ("+
+			"annotation.item_id = "+idField+
+			" AND annotation.item_type = '"+r.tableName+"'"+
+			" AND annotation.user_id = '"+userId(r.ctx)+"')").
+		Columns("starred", "starred_at", "play_count", "play_date", "rating").
+		LeftJoin("album_resume on ("+
+			"album_resume.album_id = "+idField+
+			" AND album_resume.user_id = '"+userId(r.ctx)+"')").
+		Columns("song_index", "start_at")
+}
+
 func (r sqlRepository) annId(itemID ...string) And {
 	return And{
 		Eq{annotationTable + ".user_id": userId(r.ctx)},

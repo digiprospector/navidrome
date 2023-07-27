@@ -149,6 +149,11 @@ func (s *SQLStore) GC(ctx context.Context, rootFolder string) error {
 		log.Error(ctx, "Error removing orphan album annotations", err)
 		return err
 	}
+	err = s.Album(ctx).(*albumRepository).cleanAlbumResume()
+	if err != nil {
+		log.Error(ctx, "Error removing orphan album album resume", err)
+		return err
+	}
 	err = s.Artist(ctx).(*artistRepository).cleanAnnotations()
 	if err != nil {
 		log.Error(ctx, "Error removing orphan artist annotations", err)
