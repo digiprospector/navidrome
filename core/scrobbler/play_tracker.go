@@ -68,6 +68,7 @@ func newPlayTracker(ds model.DataStore, broker events.Broker) *playTracker {
 	return p
 }
 
+// 开始播放一个文件, 在这里加入写数据库的代码
 func (p *playTracker) NowPlaying(ctx context.Context, playerId string, playerName string, trackId string) error {
 	mf, err := p.ds.MediaFile(ctx).Get(trackId)
 	if err != nil {
@@ -90,7 +91,21 @@ func (p *playTracker) NowPlaying(ctx context.Context, playerId string, playerNam
 	if player.ScrobbleEnabled {
 		p.dispatchNowPlaying(ctx, user.ID, mf)
 	}
+
+	//记录Album resume
+	p.setAlbumResume(ctx, mf)
+
 	return nil
+}
+
+func (p *playTracker) setAlbumResume(ctx context.Context, track *model.MediaFile) error {
+	return p.ds.WithTx(func(tx model.DataStore) error {
+		err := p.ds.Album(ctx).SetAlbumResume(track.AlbumID, track.ID)
+		if err != nil {
+			return err
+		}
+		return err
+	})
 }
 
 func (p *playTracker) dispatchNowPlaying(ctx context.Context, userId string, t *model.MediaFile) {

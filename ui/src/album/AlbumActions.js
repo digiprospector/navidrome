@@ -46,9 +46,11 @@ const AlbumActions = ({
   const isDesktop = useMediaQuery((theme) => theme.breakpoints.up('md'))
   const isNotSmall = useMediaQuery((theme) => theme.breakpoints.up('sm'))
 
+  //album上的play按键的函数
   const handlePlay = React.useCallback(() => {
-    dispatch(playTracks(data, ids))
-  }, [dispatch, data, ids])
+    console.log(record['songIndex'], ids[record['songIndex']])
+    dispatch(playTracks(data, ids, ids[record['songIndex']]))
+  }, [dispatch, data, ids, record])
 
   const handlePlayNext = React.useCallback(() => {
     dispatch(playNext(data, ids))

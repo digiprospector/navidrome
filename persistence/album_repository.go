@@ -75,7 +75,7 @@ func artistFilter(field string, value interface{}) Sqlizer {
 }
 
 func (r *albumRepository) CountAll(options ...model.QueryOptions) (int64, error) {
-	sql := r.newSelectWithAnnotation("album.id")
+	sql := r.newSelectWithAnnotationAndAlbumResume("album.id")
 	sql = r.withGenres(sql)
 	return r.count(sql, options...)
 }
@@ -85,7 +85,7 @@ func (r *albumRepository) Exists(id string) (bool, error) {
 }
 
 func (r *albumRepository) selectAlbum(options ...model.QueryOptions) SelectBuilder {
-	sql := r.newSelectWithAnnotation("album.id", options...).Columns("album.*")
+	sql := r.newSelectWithAnnotationAndAlbumResume("album.id", options...).Columns("album.*")
 	if len(options) > 0 && options[0].Filters != nil {
 		s, _, _ := options[0].Filters.ToSql()
 		// If there's any reference of genre in the filter, joins with genre
