@@ -1,4 +1,5 @@
-What is different from original version:
+# What is different from original version:
+
 Add album feature, when you play the album, it will start with the last song you played in the album
 
 <a href="https://www.navidrome.org"><img src="resources/logo-192x192.png" alt="Navidrome logo" title="navidrome" align="right" height="60px" /></a>
