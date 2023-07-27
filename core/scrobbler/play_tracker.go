@@ -93,19 +93,13 @@ func (p *playTracker) NowPlaying(ctx context.Context, playerId string, playerNam
 	}
 
 	//记录Album resume
-	p.setAlbumResume(ctx, mf)
+	_ = p.setAlbumResume(ctx, mf)
 
 	return nil
 }
 
 func (p *playTracker) setAlbumResume(ctx context.Context, track *model.MediaFile) error {
-	return p.ds.WithTx(func(tx model.DataStore) error {
-		err := p.ds.Album(ctx).SetAlbumResume(track.AlbumID, track.ID)
-		if err != nil {
-			return err
-		}
-		return err
-	})
+	return p.ds.Album(ctx).SetAlbumResume(track.AlbumID, track.ID)
 }
 
 func (p *playTracker) dispatchNowPlaying(ctx context.Context, userId string, t *model.MediaFile) {
