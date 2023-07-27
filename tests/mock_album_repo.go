@@ -89,6 +89,17 @@ func (m *MockAlbumRepo) IncPlayCount(id string, timestamp time.Time) error {
 	}
 	return model.ErrNotFound
 }
+func (m *MockAlbumRepo) SetAlbumResume(AlbumID string, trackID string) error {
+	if m.err {
+		return errors.New("error")
+	}
+	if d, ok := m.data[AlbumID]; ok {
+		d.StartAt = 0
+		d.SongIndex = 0
+		return nil
+	}
+	return model.ErrNotFound
+}
 func (m *MockAlbumRepo) CountAll(...model.QueryOptions) (int64, error) {
 	return int64(len(m.all)), nil
 }
