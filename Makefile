@@ -81,6 +81,10 @@ setup-git: ##@Development Setup Git hooks (pre-commit and pre-push)
 buildall: buildjs build ##@Build Build the project, both frontend and backend
 .PHONY: buildall
 
+buildstatic: warning-noui-build check_go_env  ##@Build Build only backend
+	go build -ldflags="-extldflags '-static -lz'" -tags=netgo
+.PHONY: buildsatitic
+
 build: warning-noui-build check_go_env  ##@Build Build only backend
 	go build -ldflags="-X github.com/navidrome/navidrome/consts.gitSha=$(GIT_SHA) -X github.com/navidrome/navidrome/consts.gitTag=$(GIT_TAG)-SNAPSHOT" -tags=netgo
 .PHONY: build
