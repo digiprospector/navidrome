@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +12,7 @@ import (
 	"github.com/deluan/sanitize"
 	"github.com/navidrome/navidrome/conf"
 	"github.com/navidrome/navidrome/consts"
+	"github.com/navidrome/navidrome/log"
 	"github.com/navidrome/navidrome/model"
 	"github.com/navidrome/navidrome/scanner/metadata"
 	"github.com/navidrome/navidrome/utils"
@@ -28,19 +30,69 @@ func newMediaFileMapper(rootFolder string, genres model.GenreRepository) *mediaF
 	}
 }
 
+func parseAlbumSetting(path string, aj *map[string]interface{}) {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	} else {
+		err = json.Unmarshal(content, aj)
+		if err != nil {
+			log.Error("could not unmarshal json: %s\n", err)
+		} else {
+			value, ok := (*aj)["name_from_folder"]
+			if ok && value == true {
+				(*aj)["name"] = filepath.Base(filepath.Dir(path))
+			}
+		}
+	}
+}
+
+func findAlbumSetting(path string, aj *map[string]interface{}) {
+	dir := filepath.Dir(path)
+
+	for dir != "." && dir != "/" {
+		album_json_file := filepath.Join(dir, "album.json")
+		if _, err := os.Stat(album_json_file); !os.IsNotExist(err) {
+			parseAlbumSetting(album_json_file, aj)
+			log.Debug("findAlbumSetting", "found", filepath.Join(dir, "album.json"))
+			break
+		}
+		dir = filepath.Dir(dir)
+	}
+	log.Debug("findAlbumSetting", "aj", aj)
+}
+
 // TODO Move most of these mapping functions to setters in the model.MediaFile
 func (s mediaFileMapper) toMediaFile(md metadata.Tags) model.MediaFile {
+	var aj map[string]interface{}
+
+	findAlbumSetting(md.FilePath(), &aj)
 	mf := &model.MediaFile{}
 	mf.ID = s.trackID(md)
 	mf.Year, mf.Date, mf.OriginalYear, mf.OriginalDate, mf.ReleaseYear, mf.ReleaseDate = s.mapDates(md)
 	mf.Title = s.mapTrackTitle(md)
 	mf.Album = md.Album()
-	mf.AlbumID = s.albumID(md, mf.ReleaseDate)
-	mf.Album = s.mapAlbumName(md)
+	n, n_ok := aj["name"]
+	a, a_ok := aj["artist"]
+	if n_ok && a_ok {
+		mf.AlbumID = fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(fmt.Sprintf("%s\\%s", a, n)))))
+	} else {
+		mf.AlbumID = s.albumID(md, mf.ReleaseDate)
+	}
+	if a_ok {
+		mf.Album = fmt.Sprintf("%s", n)
+	} else {
+		mf.Album = s.mapAlbumName(md)
+	}
 	mf.ArtistID = s.artistID(md)
 	mf.Artist = s.mapArtistName(md)
-	mf.AlbumArtistID = s.albumArtistID(md)
-	mf.AlbumArtist = s.mapAlbumArtistName(md)
+	if a_ok {
+		mf.AlbumArtistID = fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(fmt.Sprintf("%s", a)))))
+		mf.AlbumArtist = fmt.Sprintf("%s", a)
+	} else {
+		mf.AlbumArtistID = s.albumArtistID(md)
+		mf.AlbumArtist = s.mapAlbumArtistName(md)
+	}
 	mf.Genre, mf.Genres = s.mapGenres(md.Genres())
 	mf.Compilation = md.Compilation()
 	mf.TrackNumber, _ = md.TrackNumber()
