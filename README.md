@@ -1,6 +1,6 @@
 # 这个版本做了哪些修改
 
-1. 增加了专辑恢复功能.
+1. 增加了专辑恢复功能(只有web下生效).
    因为我用navidrome听MOOC, 原来的版本, 如果你播放专辑, 就会从第一个音频开始播放, 我希望能重上一次最后播放的那一个音频开始.
 2. 增加了自定义专辑名, 专辑艺术家的功能.
    我下载了U选1000, 有1000首歌, 如果用原来的版本, 就会分成非常多的专辑, 官方给的解决方案是修改TAG <https://www.navidrome.org/docs/faq/#-i-have-an-album-with-tracks-by-different-artists-why-is-it-broken-up-into-lots-of-separate-albums-each-with-their-own-artist>, 把艺术家名统一修改成"群星".
@@ -12,7 +12,7 @@
 
 What is different from original version:
 
-1. Added album resume function.
+1. Added album resume function(web player only).
    Because I use navidrome to listen to MOOC, the original version, if you play the album, it will start from the first audio, I would like to start from the last audio that was played last time.
 2. add the function of customising album name, album artist.
    I have downloaded U1000, there are 1000 songs, if I use the original version, it will be divided into many albums, the official solution is to change the TAG <https://www.navidrome.org/docs/faq/#-i-have-an-album-with-tracks-by-different-artists-why-is-it-broken-up-into-lots-of-separate-albums-each-with-their-own-artist>, change the artist name to "Various Artists". However, the artist could not be seen during playback, so this feature was added.
